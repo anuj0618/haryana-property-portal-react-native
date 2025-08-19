@@ -1,6 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://dludsnifbiuaarvmjaaa.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdWRzbmlmYml1YWFydm1qYWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNjAzMzUsImV4cCI6MjA2NTYzNjMzNX0.k2QbvhS1DXneqoKI2HywK6JQs3ienf5e20bRsvlhW84';
+/**
+ * Do NOT store Supabase credentials in source control.
+ * Provide SUPABASE_URL and SUPABASE_KEY via environment (CI/EAS secrets/.env).
+ *
+ * This exports a factory so importing this file during install tooling doesn't blow up.
+ */
+const SUPABASE_URL = process.env.SUPABASE_URL ?? '';
+const SUPABASE_KEY = process.env.SUPABASE_KEY ?? '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export function createSupabaseClient(): SupabaseClient | null {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    // Avoid creating a client with missing credentials during installs / static checks.
+    // Callers should handle null or pass credentials directly.
+    // eslint-disable-next-line no-console
+    console.warn('[supabase] SUPABASE_URL or SUPABASE_KEY not set — supabase client not created.');
+    return null;
+  }
+  return createClient(SUPABASE_URL, SUPABASE_KEY);
+}
